@@ -60,7 +60,9 @@ namespace SSAGES
 				std::cout<<"Error getting dimension for Atom Coordinate CV"<<std::endl;
 				exit(0);
 			}
-
+            //so here we would decide if we create a gpu or cpu-based collective variables
+            //all of the CV parsing structure does not have to be changed other than this
+            //would just do for each CV implemented on the GPU
 			auto* c = new AtomCoordinateCV(atomid, index);
 
 			cv = static_cast<CollectiveVariable*>(c);

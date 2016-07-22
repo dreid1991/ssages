@@ -67,6 +67,8 @@ if(LAMMPS_SRC)
 		hooks/lammps/fix_ssages.cpp
 	)
 elseif(DANMD_SRC)
+    set(ENABLE_DANMD true)
+    message(STATUS "md_engine dir is " ${DANMD_SRC})
 	ExternalProject_Add(
 		danmd
 		SOURCE_DIR ${DANMD_SRC}

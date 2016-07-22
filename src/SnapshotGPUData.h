@@ -7,34 +7,34 @@ namespace SSAGES{
             void processVs(){};
             void processFs(){};
             void processIds(){};
-            void processTypes(){};
         public:
+            SnapshotGPUData() {
+                //not dealing with possibility of multiple formats currently
+                xsFormatSame = vsFormatSame = fsFormatSame = idsFormatSame = true;
+            }
             float4 *xs;
             float4 *vs;
             float4 *fs;
             int *ids;
-            int *types;
-            int nAtoms;
 
 
             GPUArrayDeviceGlobal<float> cvValues;
-            bool xsFormatSame, vsFormatSame, fsFormatSame, idsFormatSame, typesFormatSame;
+            bool xsFormatSame, vsFormatSame, fsFormatSame, idsFormatSame;
 
-            bool xsIsProcessed, vsIsProcesses, fsIsProcessed, idsIsProcessed, typesIsProcessed;
+            bool xsIsProcessed, vsIsProcesses, fsIsProcessed, idsIsProcessed;
             //only to be used by fields for which format is not as expected by package
-            GPUArrayDeviceGlobal<float4> xsProcessed;
-            GPUArrayDeviceGlobal<float4> vsProcessed;
-            GPUArrayDeviceGlobal<float4> fsProcessed;
-            GPUArrayDeviceGlobal<int> idsProcessed;
-            GPUArrayDeviceGlobal<int> typesProcessed;
+          //  GPUArrayDeviceGlobal<float4> xsProcessed;
+          //  GPUArrayDeviceGlobal<float4> vsProcessed;
+          //  GPUArrayDeviceGlobal<float4> fsProcessed;
+          //  GPUArrayDeviceGlobal<int> idsProcessed;
+          //  GPUArrayDeviceGlobal<int> typesProcessed;
             resetIsProcessed() {
                 xsIsProcessed = false;
                 vsIsProcessed = false;
                 fsIsProcessed = false;
                 idsIsProcessed = false;
-                typesIsProcessed = false;
             }
-            float4 *getXs () {
+            float4 *GetPositions () {
                 if (xsFormatSame) {
                     return xs;
                 } else {
@@ -45,7 +45,7 @@ namespace SSAGES{
                     return xsProcessed.ptr;
                 }
             }
-            float4 *getVs () {
+            float4 *GetVelocities () {
                 if (vsFormatSame) {
                     return vs;
                 } else {
@@ -56,7 +56,7 @@ namespace SSAGES{
                     return vsProcessed.ptr;
                 }
             }
-            float4 *getFs () {
+            float4 *GetForces () {
                 if (fsFormatSame) {
                     return fs;
                 } else {
@@ -67,7 +67,7 @@ namespace SSAGES{
                     return fsProcessed.ptr;
                 }
             }
-            int *getIds () {
+            int *GetAtomIDs () {
                 if (idsFormatSame) {
                     return ids;
                 } else {
@@ -78,19 +78,6 @@ namespace SSAGES{
                     return idsProcessed.ptr;
                 }
             }
-            int *getTypes () {
-                if (typesFormatSame) {
-                    return types;
-                } else {
-                    if (!typesIsProcessed) {
-                        processTypes();
-                        typesIsProcessed = true;
-                    }
-                    return types.ptr;
-                }
-            }
-
-
 
     };
 }

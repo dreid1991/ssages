@@ -206,6 +206,18 @@ namespace SSAGES
 				}
 				else
 			#endif
+            #ifdef ENABLE_DANMD
+
+                if (_MDEngine == "DANMD")
+                {
+                    DANMDDriver *driver = new DANMDDriver(_world, _comm, wid);
+                    if (!(_MDDriver = static_cast<Driver *>(driver))) {
+							std::cerr << "Unable to dynamic cast engine on node "<<_world.rank()<<" Error occurred" << std::endl;
+							_world.abort(-1);			
+					}
+                }
+                else
+            #endif
 			{
 				std::cout<<"Errors"<<std::endl;
 				DumpErrorsToConsole({"Unknown MD Engine [" + _MDEngine + "] specified."},_notw);

@@ -40,7 +40,10 @@ namespace SSAGES
 		 * eingine and updates the snapshot with it.
 		 */
 		virtual void SyncToSnapshot() = 0;
-
+#ifdef DANMD
+        virtual void SyncToSnapshotCPU() = 0;
+        virtual void SyncToEngineCPU() = 0;
+#endif
 		//! Pre-simulation hook
 		/*!
 		 * This should be called at the appropriate

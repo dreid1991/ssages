@@ -41,6 +41,9 @@ namespace SSAGES
 		double _volume; //!< Volume of Simultion box
 
 		bool _changed; //!< \c TRUE is Simulation state changed
+#ifdef DANMD
+        SnapshotGPUData _gpd;
+#endif
 
 	public:
 		//! Constructor

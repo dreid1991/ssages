@@ -15,6 +15,13 @@
 		// Implementation of the SyncToSnapshot interface.
 		void SyncToSnapshot() override;
 
+        // Implementation of the SyncToEngine interface.
+		void SyncToEngineCPU() override;
+
+		// Implementation of the SyncToSnapshot interface.
+		void SyncToSnapshotCPU() override;
+
+
 	public:
 		FixSSAGES(SHARED(State) state, string handle);
 

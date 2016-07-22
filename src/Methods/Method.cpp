@@ -32,7 +32,8 @@ namespace SSAGES
 		
 		// Get method type. 
 		std::string type = json.get("type", "none").asString();
-
+    //same thing as CVs.  just have to add if statement to decide whether to instantiate gpu or cpu version.  
+    //NEED TO ADD FLAG TO SNAPSHOT ABOUT WHETHER IS GPU OR CPU BASED
 		if(type == "Umbrella")
 		{
 			reader.parse(JsonSchema::UmbrellaMethod, schema);
