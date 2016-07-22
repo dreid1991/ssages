@@ -1,15 +1,21 @@
 #pragma once
 
+#include "config.h"
 #include "Drivers/Driver.h"
-#include "Drivers/LammpsDriver.h"
 #include "../JSON/Serializable.h"
 #include "json/json.h"
 #include <boost/mpi.hpp>
 #include "../JSON/JSONLoader.h"
 #include "../JSON/Serializable.h"
+#include "../include/schema.h"
 #include <exception>
 #include "../Utility/BuildException.h"
 #include "../Validator/ArrayRequirement.h"
+
+#ifdef ENABLE_LAMMPS
+#include "Drivers/LammpsDriver.h"
+#endif
+
 
 namespace mpi = boost::mpi;
 using namespace Json;
@@ -187,17 +193,19 @@ namespace SSAGES
 			_MDEngine = JsonDriver.get("type", "none").asString();
 
 			// Use input from JSON to determine MDEngine of choice as well as other parameters
-			if(_MDEngine == "LAMMPS")
-			{
-				LammpsDriver* en = new LammpsDriver(_world, _comm, wid);
-
-				if(!(_MDDriver = static_cast<Driver*>(en)))
+			#ifdef ENABLE_LAMMPS
+				if(_MDEngine == "LAMMPS")
 				{
-						std::cerr << "Unable to dynamic cast engine on node "<<_world.rank()<<" Error occurred" << std::endl;
-						_world.abort(-1);			
+					LammpsDriver* en = new LammpsDriver(_world, _comm, wid);
+
+					if(!(_MDDriver = static_cast<Driver*>(en)))
+					{
+							std::cerr << "Unable to dynamic cast engine on node "<<_world.rank()<<" Error occurred" << std::endl;
+							_world.abort(-1);			
+					}
 				}
-			}
-			else
+				else
+			#endif
 			{
 				std::cout<<"Errors"<<std::endl;
 				DumpErrorsToConsole({"Unknown MD Engine [" + _MDEngine + "] specified."},_notw);

@@ -17,54 +17,79 @@ find_package(Boost
 	COMPONENTS mpi serialization
 )
 
-# Get lammps source directory
+# Package src directories
 set(LAMMPS_SRC "" CACHE STRING "LAMMPS source directory")
+set(DANMD_SRC "" CACHE STRING "DanMD source directory")
 
 include(ExternalProject)
 
-# Add lammps as external project
-ExternalProject_Add(
-	lammps
-	SOURCE_DIR ${LAMMPS_SRC}
-	CONFIGURE_COMMAND ""
-	BUILD_COMMAND $(MAKE) mpi mode=shlib 
-	CCFLAGS=-I${PROJECT_SOURCE_DIR}/src  
-	CCFLAGS+=-I${PROJECT_SOURCE_DIR}/include  
-	CCFLAGS+=-I${Boost_INCLUDE_DIRS}     
-	CCFLAGS+=-std=c++11                  
-	CCFLAGS+=-L${Boost_LIBRARY_DIRS}      
-	LIB+=-lboost_mpi                      
-	LIB+=-lboost_serialization           
-	LIB+=${CMAKE_BINARY_DIR}/libssages.a
-	INSTALL_COMMAND ""
-	BUILD_IN_SOURCE true
-	LOG_BUILD ON
-)
+if(LAMMPS_SRC)
+	# Add lammps as external project
+	ExternalProject_Add(
+		lammps
+		SOURCE_DIR ${LAMMPS_SRC}
+		CONFIGURE_COMMAND ""
+		BUILD_COMMAND $(MAKE) mpi mode=shlib 
+		CCFLAGS=-I${PROJECT_SOURCE_DIR}/src  
+		CCFLAGS+=-I${PROJECT_SOURCE_DIR}/include  
+		CCFLAGS+=-I${Boost_INCLUDE_DIRS}     
+		CCFLAGS+=-std=c++11                  
+		CCFLAGS+=-L${Boost_LIBRARY_DIRS}      
+		LIB+=-lboost_mpi                      
+		LIB+=-lboost_serialization           
+		LIB+=${CMAKE_BINARY_DIR}/libssages.a
+		INSTALL_COMMAND ""
+		BUILD_IN_SOURCE true
+		LOG_BUILD ON
+	)
 
-ExternalProject_Add_Step(
-	lammps forceconfigure
-	COMMENT "Configuring LAMMPS"
-	DEPENDERS build
-	DEPENDEES update
-	ALWAYS 1
-)
+	ExternalProject_Add_Step(
+		lammps forceconfigure
+		COMMENT "Configuring LAMMPS"
+		DEPENDERS build
+		DEPENDEES update
+		ALWAYS 1
+	)
 
-add_custom_command(
-    TARGET lammps PRE_BUILD
-    COMMAND ln -sf ${PROJECT_SOURCE_DIR}/hooks/lammps/fix_ssages.h ${LAMMPS_SRC}/fix_ssages.h
-    COMMAND touch ${LAMMPS_SRC}/modify.cpp
-)
+	add_custom_command(
+	    TARGET lammps PRE_BUILD
+	    COMMAND ln -sf ${PROJECT_SOURCE_DIR}/hooks/lammps/fix_ssages.h ${LAMMPS_SRC}/fix_ssages.h
+	    COMMAND touch ${LAMMPS_SRC}/modify.cpp
+	)
+
+
+	# Include directory for the pacakge we're interested in. 
+	include_directories("${LAMMPS_SRC}")
+
+
+	# Add source for appropriate package hook.
+	set(HOOKSRC
+		hooks/lammps/fix_ssages.cpp
+	)
+elseif(DANMD_SRC)
+	ExternalProject_Add(
+		danmd
+		SOURCE_DIR ${DANMD_SRC}
+		PREFIX ${CMAKE_CURRENT_BINARY_DIR}/danmd
+		CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+		BUILD_IN_SOURCE true
+		INSTALL_DIR ${CMAKE_BINARY_DIR}/danmd
+		INSTALL_COMMAND cp ${DANMD_SRC}/src/libSim.so ${CMAKE_CURRENT_BINARY_DIR}/danmd/
+		LOG_BUILD ON)
+	
+	ExternalProject_Add_Step(
+		danmd forceconfigure
+		COMMENT "Configuring DanMD"
+		DEPENDERS build
+		DEPENDEES update
+		ALWAYS 1
+	)
+
+endif()
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}/include")
-
-# Include directory for the pacakge we're interested in. 
-include_directories("${LAMMPS_SRC}")
-
-# Add source for appropriate package hook.
-set(HOOKSRC
-	hooks/lammps/fix_ssages.cpp
-)
+include_directories("${PROJECT_BINARY_DIR}")
 
 # General source files
 set(SOURCE
@@ -95,17 +120,32 @@ set_target_properties(libssages PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC")
 set_property(TARGET libssages PROPERTY CXX_STANDARD 11)
 set_property(TARGET libssages PROPERTY CXX_STANDARD_REQUIRED ON)
 
-# Dependency.
-add_dependencies(lammps libssages)
-
 # SSAGES executable.
 add_executable(ssages
 	src/main.cpp
 )
-target_link_libraries(ssages libssages ${LAMMPS_SRC}/liblammps_mpi.so)
-add_dependencies(ssages lammps)
+
+# Configure header.
+configure_file (
+  "${PROJECT_SOURCE_DIR}/src/config.h.in"
+  "${PROJECT_BINARY_DIR}/config.h"
+)
+
+# Dependencies. 
+
+if(LAMMPS_SRC)
+	add_dependencies(lammps libssages)
+	target_link_libraries(ssages libssages ${LAMMPS_SRC}/liblammps_mpi.so)
+	add_dependencies(ssages lammps)
+elseif(DANMD_SRC)
+	add_dependencies(danmd libssages)
+	target_link_libraries(ssages libssages ${CMAKE_CURRENT_BINARY_DIR}/danmd/libSim.so)
+endif()
 set_target_properties(ssages PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
 
 # Configure flags 
 # - Globals
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math -pthread -std=c++11")
+
+# Add doc subdirectory for building the documentation
+add_subdirectory(doc)

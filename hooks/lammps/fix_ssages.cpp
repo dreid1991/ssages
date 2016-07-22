@@ -104,6 +104,7 @@ namespace LAMMPS_NS
 		// Allocate vectors for snapshot.
 		// Here we size to local number of atoms. We will 
 		// resize later.
+
 		auto n = atom->nlocal;
 		auto& pos = _snapshot->GetPositions();
 		pos.resize(n);
@@ -226,7 +227,10 @@ namespace LAMMPS_NS
 			frc[i][1] = _atom->f[i][1]; //force->y
 			frc[i][2] = _atom->f[i][2]; //force->z
 
-			masses[i] = _atom->mass[i];
+			if(_atom->rmass_flag)
+				masses[i] = _atom->rmass[i];
+			else
+				masses[i] = _atom->mass[_atom->type[i]];
 			
 			vel[i][0] = _atom->v[i][0];
 			vel[i][1] = _atom->v[i][1];
@@ -275,7 +279,10 @@ namespace LAMMPS_NS
 			atom->f[i][0] = frc[i][0]; //force->x
 			atom->f[i][1] = frc[i][1]; //force->y
 			atom->f[i][2] = frc[i][2]; //force->z
-			atom->mass[i] = masses[i]; //atom mass
+			// Current masses can only be changed if using
+			// per atom masses in lammps
+			if(atom->rmass_flag)
+				atom->rmass[i] = masses[i];
 			atom->v[i][0] = vel[i][0]; //velocity->x
 			atom->v[i][1] = vel[i][1]; //velocity->y
 			atom->v[i][2] = vel[i][2]; //velocity->z
