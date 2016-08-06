@@ -152,7 +152,7 @@ if(LAMMPS_SRC)
 	add_dependencies(ssages lammps)
 elseif(DANMD_SRC)
 	add_dependencies(danmd libssages)
-    target_link_libraries(ssages libssages ${CMAKE_CURRENT_BINARY_DIR}/danmd/libSim.so ${PYTHON_LIBRARIES} ${Boost_LIBRARIES})
+    target_link_libraries(ssages libssages ${CMAKE_CURRENT_BINARY_DIR}/danmd/libSim.so ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} ${CUDA_LIBRARIES})
 endif()
 set_target_properties(ssages PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
 

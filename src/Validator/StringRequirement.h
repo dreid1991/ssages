@@ -76,10 +76,6 @@ namespace Json
 				PushError(path + ": Must be of type \"string\"");
 				return;
 			}
-            for (std::string x : _enum) {
-                std::cout << "biz is " << x << std::endl;
-            }
-            printf("I WOULD LIKE TO VALIDATE STRING\n");
 			
 			if(_minSet && json.asString().length() < _minLength)
 				PushError(path + ": Length must be greater than " + std::to_string(_minLength));
@@ -94,7 +90,6 @@ namespace Json
 				PushError(path + ": String is not a valid entry");
                 printf("ERROR\n");
             }
-            printf("VALIDATED STRING\n");
 		}
 	};
 }

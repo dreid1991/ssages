@@ -1,5 +1,7 @@
 #pragma once
-
+#include "Python.h"
+#include <boost/python.hpp>
+#include <boost/shared_ptr.hpp>
 #include "Drivers/Driver.h"
 #include "../Validator/ObjectRequirement.h"
 #include "../include/schema.h"
@@ -7,7 +9,7 @@
 #include "State.h"
 namespace mpi = boost::mpi;
 using namespace Json;
-
+namespace py = boost::python;
 namespace SSAGES
 {
 	class DANMDDriver : public Driver 
@@ -15,7 +17,7 @@ namespace SSAGES
 	private:
 
 		//pointer to this local instance of lammps
-		std::shared_ptr<State> _state;
+		boost::shared_ptr<State> _state;
 
 		// The number of MD engine steps you would like to perform
 		int _MDsteps;
@@ -52,43 +54,23 @@ namespace SSAGES
 			Reader reader;
 
 			reader.parse(JsonSchema::DANMDDriver, schema);
-            printf("val\n");
 			validator.Parse(schema, path);
-            printf("val\n");
 
 			// Validate inputs.
 			validator.Validate(json, path);
-            printf("val\n");
-            printf("srs\n");
 			if(validator.HasErrors())
 				throw BuildException(validator.GetErrors());
-            printf("val\n");
 
 			_MDsteps = json.get("MDSteps",1).asInt();
 			_inputfile = json.get("inputfile","none").asString();
-			
-            /*
-			// Silence of the lammps.
-			char **largs = (char**) malloc(sizeof(char*) * 5);
-			for(int i = 0; i < 5; ++i)
-				largs[i] = (char*) malloc(sizeof(char) * 1024);
-			sprintf(largs[0], " ");
-			sprintf(largs[1], "-screen");
-			sprintf(largs[2], "none");
-			sprintf(largs[3], "-log");
-			_logfile = json.get("logfile", "none").asString();
-			if(_logfile != "none")
-				sprintf(largs[4], "%s-MPI_ID-%d",_logfile.c_str(), _wid);
-			else
-				sprintf(largs[4], "none");
-
-			_lammps = std::make_shared<LAMMPS>(5, largs, MPI_Comm(_comm));
-
-			// Free.
-			for(int i = 0; i < 5; ++i)
-				free(largs[i]);
-			free(largs);
-            */
+            
+            //initialize!
+            Py_Initialize();
+            py::object main = py::import("__main__");
+            py::object global(main.attr("__dict__"));
+            _state = boost::shared_ptr<State>(new State());
+            
+		    	
 
 		}
 
