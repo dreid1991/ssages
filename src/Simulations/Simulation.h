@@ -17,6 +17,9 @@
 #endif
 
 
+#ifdef ENABLE_DANMD
+#include "Drivers/DANMDDriver.h"
+#endif
 namespace mpi = boost::mpi;
 using namespace Json;
 namespace SSAGES

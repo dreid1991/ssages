@@ -1,16 +1,11 @@
 #pragma once
 
-#include "lammps.h"
 #include "Drivers/Driver.h"
 #include "../Validator/ObjectRequirement.h"
 #include "../include/schema.h"
 #include "../Utility/BuildException.h"
-#include "input.h"
-#include "modify.h"
-#include "fix.h"
-
+#include "State.h"
 namespace mpi = boost::mpi;
-using namespace LAMMPS_NS;
 using namespace Json;
 
 namespace SSAGES
@@ -33,14 +28,14 @@ namespace SSAGES
 		DANMDDriver(mpi::communicator& world_comm,
 					 mpi::communicator& local_comm,
 					 int walkerID) : 
-		Driver(world_comm, local_comm, walkerID), _lammps(), _MDsteps(), _logfile() 
+		Driver(world_comm, local_comm, walkerID), _MDsteps(), _logfile() 
 		{
 		};
 
 		virtual void Run() override
 		{
 			std::string rline = "run " + std::to_string(_MDsteps);
-			_lammps->input->one(rline.c_str());
+			//_lammps->input->one(rline.c_str());
 		}
 
 		// Run LAMMPS input file line by line and gather the fix/hook
@@ -52,6 +47,7 @@ namespace SSAGES
 		virtual void BuildDriver(const Json::Value& json, const std::string& path) override
 		{
 
+            /*
 			Value schema;
 			ObjectRequirement validator;
 			Reader reader;
@@ -87,6 +83,7 @@ namespace SSAGES
 			for(int i = 0; i < 5; ++i)
 				free(largs[i]);
 			free(largs);
+            */
 
 		}
 

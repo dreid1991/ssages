@@ -69,6 +69,17 @@ if(LAMMPS_SRC)
 elseif(DANMD_SRC)
     set(ENABLE_DANMD true)
     message(STATUS "md_engine dir is " ${DANMD_SRC})
+    include_directories("${DANMD_SRC}/src")
+    find_package (PythonLibs 2.7 REQUIRED)
+    include_directories (${PYTHON_INCLUDE_DIRS})
+    find_package(CUDA REQUIRED)
+    find_package (Boost COMPONENTS python mpi serialization REQUIRED)
+    include_directories (${CUDA_INCLUDE_DIRS})
+    include_directories (${DANMD_SRC}/src/GPUArrays)
+    include_directories (${DANMD_SRC}/src/Fixes)
+    include_directories (${DANMD_SRC}/src/Integrators)
+    include_directories (${DANMD_SRC}/src/DataStorageUser)
+    include_directories (${DANMD_SRC}/src/BondedForcers)
 	ExternalProject_Add(
 		danmd
 		SOURCE_DIR ${DANMD_SRC}
@@ -134,14 +145,14 @@ configure_file (
 )
 
 # Dependencies. 
-
+message(STATUS "md_engine dir is " ${Boost_LIBRARIES})
 if(LAMMPS_SRC)
 	add_dependencies(lammps libssages)
 	target_link_libraries(ssages libssages ${LAMMPS_SRC}/liblammps_mpi.so)
 	add_dependencies(ssages lammps)
 elseif(DANMD_SRC)
 	add_dependencies(danmd libssages)
-	target_link_libraries(ssages libssages ${CMAKE_CURRENT_BINARY_DIR}/danmd/libSim.so)
+    target_link_libraries(ssages libssages ${CMAKE_CURRENT_BINARY_DIR}/danmd/libSim.so ${PYTHON_LIBRARIES} ${Boost_LIBRARIES})
 endif()
 set_target_properties(ssages PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
 
