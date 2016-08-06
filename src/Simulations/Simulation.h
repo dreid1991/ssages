@@ -308,7 +308,6 @@ namespace SSAGES
 				}
 				mpi::broadcast(_comm, contents, 0);
 			}
-
 			try{
 				_MDDriver->ExecuteInputFile(contents);
 			} catch(BuildException& e) {

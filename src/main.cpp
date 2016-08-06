@@ -38,11 +38,11 @@ int main(int argc, char* argv[])
 	std::cout << std::setw(34) << std::right << "\033[32mFinished!\033[0m\n";
 
 	std::cout << std::setw(47 + 8) << std::left << "\033[1m > Finalizing Objects\033[0m" << std::flush;
-	Sim.Finalize();
+	//Sim.Finalize();
 	std::cout << std::setw(34) << std::right << "\033[32mFinished!\033[0m\n";
 
 	// Run the MDEngine with Free energy calculations :)
 	std::cout << std::setw(47 + 8) << std::left << "\033[1m > Running simulation... \033[0m" << std::flush;
-	Sim.Run();
+	//Sim.Run();
 	std::cout << std::setw(34) << std::right << "\033[32mFinished!\033[0m\n";
 }

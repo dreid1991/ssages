@@ -44,6 +44,13 @@ namespace SSAGES
 		virtual void ExecuteInputFile(std::string contents) override
 		{
 		    //here we'll call like boost::python::exec or eval with the contents as the arg and the state we constructed as an environment variable
+            py::object main = py::import("__main__");
+            py::object globals = main.attr("__dict__");
+            py::exec(contents.c_str(), globals);
+            py::object run = globals["foo"];
+            py::extract<std::string> foo(run());
+            std::cout << std::string(foo) << std::endl;
+
 		}
 
 		virtual void BuildDriver(const Json::Value& json, const std::string& path) override
@@ -66,9 +73,10 @@ namespace SSAGES
             
             //initialize!
             Py_Initialize();
-            py::object main = py::import("__main__");
-            py::object global(main.attr("__dict__"));
+            //py::object main = py::import("__main__");
+            //py::object global(main.attr("__dict__"));
             _state = boost::shared_ptr<State>(new State());
+
             
 		    	
 
