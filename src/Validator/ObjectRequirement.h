@@ -183,6 +183,8 @@ namespace Json
 
 		virtual void Validate(const Value& json, const std::string& path) override
 		{
+            printf("I gon valdate\n");
+            std::cout << path << std::endl;
 			if(!json.isObject())
 			{
 				PushError(path + ": Must be of type \"object\"");

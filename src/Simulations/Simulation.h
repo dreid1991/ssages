@@ -229,6 +229,8 @@ namespace SSAGES
 
 			// Build the driver
 			try{
+                std::cout << path << std::endl;
+                std::cout << std::to_string(wid) << std::endl;
 				_MDDriver->BuildDriver(JsonDriver, path + "/" + std::to_string(wid));
 			} catch(BuildException& e) {
 		        DumpErrorsToConsole(e.GetErrors(), _notw);

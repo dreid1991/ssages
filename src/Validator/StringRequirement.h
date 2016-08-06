@@ -2,7 +2,7 @@
 
 #include <regex>
 #include "Requirement.h"
-
+#include <iostream>
 namespace Json
 {
 	class StringRequirement : public Requirement 
@@ -63,8 +63,9 @@ namespace Json
 
 			if(json.isMember("enum") && json["enum"].isArray())
 			{
-				for(const auto& val : json["enum"])
+				for(const auto& val : json["enum"]) {
 					_enum.push_back(val.asString());
+                }
 			}
 		}
 
@@ -75,6 +76,10 @@ namespace Json
 				PushError(path + ": Must be of type \"string\"");
 				return;
 			}
+            for (std::string x : _enum) {
+                std::cout << "biz is " << x << std::endl;
+            }
+            printf("I WOULD LIKE TO VALIDATE STRING\n");
 			
 			if(_minSet && json.asString().length() < _minLength)
 				PushError(path + ": Length must be greater than " + std::to_string(_minLength));
@@ -85,8 +90,11 @@ namespace Json
 			if(_rgxSet && !std::regex_match(json.asString(), _regex))
 				PushError(path + ": String must match regular expression \"" + _expr + "\"");
 
-			if(_enum.size() && std::find(_enum.begin(),_enum.end(), json.asString()) == _enum.end())
+			if(_enum.size() && std::find(_enum.begin(),_enum.end(), json.asString()) == _enum.end()) {
 				PushError(path + ": String is not a valid entry");
+                printf("ERROR\n");
+            }
+            printf("VALIDATED STRING\n");
 		}
 	};
 }

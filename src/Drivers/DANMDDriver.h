@@ -47,22 +47,27 @@ namespace SSAGES
 		virtual void BuildDriver(const Json::Value& json, const std::string& path) override
 		{
 
-            /*
 			Value schema;
 			ObjectRequirement validator;
 			Reader reader;
 
-			reader.parse(JsonSchema::LAMMPSDriver, schema);
+			reader.parse(JsonSchema::DANMDDriver, schema);
+            printf("val\n");
 			validator.Parse(schema, path);
+            printf("val\n");
 
 			// Validate inputs.
 			validator.Validate(json, path);
+            printf("val\n");
+            printf("srs\n");
 			if(validator.HasErrors())
 				throw BuildException(validator.GetErrors());
+            printf("val\n");
 
 			_MDsteps = json.get("MDSteps",1).asInt();
 			_inputfile = json.get("inputfile","none").asString();
 			
+            /*
 			// Silence of the lammps.
 			char **largs = (char**) malloc(sizeof(char*) * 5);
 			for(int i = 0; i < 5; ++i)

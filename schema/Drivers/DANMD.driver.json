@@ -1,0 +1,29 @@
+{
+	"type": "object",
+	"varname" : "DANMDDriver",
+	"properties" : {
+		"type" : {
+			"type" : "string",
+			"enum" : ["DANMD"]
+		},
+		"MDSteps" : {
+			"type" : "integer",
+			"minimum" : 1
+		},
+		"logfile" : {
+			"type" : "string"
+		},
+		"inputfile" : {
+			"type" : "string"
+		},
+		"CVs" : {
+			"type" : "array",
+			"minItems" : 1
+		},
+		"method" : {
+			"type" : "object"
+		}
+	},
+	"required" : ["type", "MDSteps", "logfile", "CVs", "method"],
+	"additionalProperties": false
+}
