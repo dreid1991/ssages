@@ -40,14 +40,27 @@ namespace SSAGES
 
 		virtual void Run() override
 		{
-			std::string rline = "run " + std::to_string(_MDsteps);
-			//_lammps->input->one(rline.c_str());
+            py::object main = py::import("__main__");
+            py::object globals = main.attr("__dict__");
+            PyObject *runSimulation = PyDict_GetItemString(globals.ptr(), runFuncName.c_str());
+            if (runSimulation == (PyObject *) NULL) {
+                std::cout << "No runsimulation function in python script.  Must be global variable called " << runFuncName << std::endl;
+                exit(0);
+            }
+            if (not PyCallable_Check(runSimulation)) {
+                std::cout << "Global variable with name " << runFuncName << " is not callable " << std::endl;
+                exit(0);
+
+            }
+            try {
+                py::call<void>(runSimulation, _statePy, _MDsteps);
+            } catch (py::error_already_set &) {
+                PythonHelpers::printErrors();
+            }
 		}
 
-		// Run LAMMPS input file line by line and gather the fix/hook
 		virtual void ExecuteInputFile(std::string contents) override
 		{
-		    //here we'll call like boost::python::exec or eval with the contents as the arg and the state we constructed as an environment variable
             py::object main = py::import("__main__");
             py::object globals = main.attr("__dict__");
             try {
@@ -68,7 +81,7 @@ namespace SSAGES
 
             }
             try {
-                py::object _statePy = py::call<py::object>(setupSimulation);
+                _statePy = py::call<py::object>(setupSimulation);
                 std::string asStr = py::extract<std::string>(py::str(_statePy));
                 std::cout << "Received the following from " << setupFuncName << ":" << std::endl;
                 std::cout << asStr << std::endl;
