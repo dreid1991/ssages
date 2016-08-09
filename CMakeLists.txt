@@ -68,6 +68,13 @@ if(LAMMPS_SRC)
 	)
 elseif(DANMD_SRC)
     set(ENABLE_DANMD true)
+    message(STATUS "HERE")
+    find_package(CUDA REQUIRED)
+    set (CUDA_PROPAGATE_HOST_FLAGS OFF)
+    set (custom_cuda_flags -std=c++11; -Xcompiler -fpic; --use_fast_math; --prec-div=true; --prec-sqrt=true;)
+    list (APPEND CUDA_NVCC_FLAGS ${custom_cuda_flags})
+
+
     message(STATUS "md_engine dir is " ${DANMD_SRC})
     include_directories("${DANMD_SRC}/src")
     find_package (PythonLibs 2.7 REQUIRED)
@@ -125,17 +132,19 @@ add_definitions(${MPI_CXX_COMPILE_FLAGS})
 link_directories(${MPI_CXX_LIBRARIES})
 
 # SSAGES library.
-add_library(libssages ${HOOKSRC} ${SOURCE})
+cuda_add_library(libssages ${HOOKSRC} ${SOURCE})
 set_target_properties(libssages PROPERTIES PREFIX "")
 target_link_libraries(libssages ${MPI_CXX_LIBRARIES} ${Boost_LIBRARIES})
-set_target_properties(libssages PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC")
+#set_target_properties(libssages PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC -std=c++11")
+#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpic")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpic -Wall -Wextra -fPIC")
 
 # Require C++11.
 set_property(TARGET libssages PROPERTY CXX_STANDARD 11)
 set_property(TARGET libssages PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # SSAGES executable.
-add_executable(ssages
+cuda_add_executable(ssages
 	src/main.cpp
 )
 
@@ -154,13 +163,6 @@ if(LAMMPS_SRC)
 elseif(DANMD_SRC)
 
 # Find CUDA
-    message(STATUS "HERE")
-    find_package(CUDA REQUIRED)
-    set (CUDA_PROPAGATE_HOST_FLAGS OFF)
-    set (custom_cuda_flags -std=c++11; -Xcompiler -fpic; --use_fast_math; --prec-div=true; --prec-sqrt=true;)
-    list (APPEND CUDA_NVCC_FLAGS ${custom_cuda_flags})
-    list (APPEND CUDA_NVCC_FLAGS ${CUDA_NVCC_DEBUG_FLAGS})
-
 	add_dependencies(danmd libssages)
     target_link_libraries(ssages libssages ${CMAKE_CURRENT_BINARY_DIR}/danmd/libSim.so ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} ${CUDA_LIBRARIES})
 endif()
