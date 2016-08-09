@@ -106,6 +106,7 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 # General source files
 set(SOURCE
+    src/CVs/AtomCoordinateCV_gpu.cu
 	src/Methods/Meta.cpp
 	src/Methods/Umbrella.cpp
 	src/Methods/ElasticBand.cpp
@@ -151,6 +152,15 @@ if(LAMMPS_SRC)
 	target_link_libraries(ssages libssages ${LAMMPS_SRC}/liblammps_mpi.so)
 	add_dependencies(ssages lammps)
 elseif(DANMD_SRC)
+
+# Find CUDA
+    message(STATUS "HERE")
+    find_package(CUDA REQUIRED)
+    set (CUDA_PROPAGATE_HOST_FLAGS OFF)
+    set (custom_cuda_flags -std=c++11; -Xcompiler -fpic; --use_fast_math; --prec-div=true; --prec-sqrt=true;)
+    list (APPEND CUDA_NVCC_FLAGS ${custom_cuda_flags})
+    list (APPEND CUDA_NVCC_FLAGS ${CUDA_NVCC_DEBUG_FLAGS})
+
 	add_dependencies(danmd libssages)
     target_link_libraries(ssages libssages ${CMAKE_CURRENT_BINARY_DIR}/danmd/libSim.so ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} ${CUDA_LIBRARIES})
 endif()

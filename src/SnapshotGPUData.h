@@ -12,10 +12,12 @@ namespace SSAGES{
                 //not dealing with possibility of multiple formats currently
                 xsFormatSame = vsFormatSame = fsFormatSame = idsFormatSame = true;
             }
+            int nAtoms;
             float4 *xs;
             float4 *vs;
             float4 *fs;
             int *ids;
+            int *idToIdxs;
 
 
             GPUArrayDeviceGlobal<float> cvValues;

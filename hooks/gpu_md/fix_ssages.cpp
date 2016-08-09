@@ -26,17 +26,6 @@ using namespace SSAGES;
 	{
         //so this is always called while data is on cpu
 		// Allocate vectors for snapshot.
-		auto n = state->atoms.size();
-		auto& pos = _snapshot.GetPositions();
-		pos.resize(n);
-		auto& vel = _snapshot.GetVelocities();
-		vel.resize(n);
-		auto& frc = _snapshot.GetForces();
-		frc.resize(n);
-		auto& ids = _snapshot.GetAtomIDs();
-		ids.resize(n);
-		auto& types = _snapshot.GetAtomTypes();
-		types.resize(n);
 
 		SyncToSnapshot();
 		Hook::PreSimulationHook();
@@ -56,10 +45,12 @@ using namespace SSAGES;
 	}
     void FixSSAGES::syncToSnapshot() {
         GPUData &gpd = state->gpd;
+        _snapshow._gpd.nAtoms = state->atoms.size();
         _snapshot._gpd.xs = gpd.xs.getDevData()
         _snapshot._gpd.vs = gpd.vs.getDevData()
         _snapshot._gpd.fs = gpd.fs.getDevData()
         _snapshot._gpd.ids = gpd.ids.getDevData()
+        _snapshot._gpd.idToIdxs = gpd.ids.data()
     }
     void FixSSAGES::syncToEngine() {
         //nothing here - operating on the same list on the gpu    

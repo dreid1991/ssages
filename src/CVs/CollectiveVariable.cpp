@@ -5,6 +5,9 @@
 #include "../Validator/ObjectRequirement.h"
 #include "../Validator/ArrayRequirement.h"
 #include "AtomCoordinateCV.h"
+#ifdef DANMD
+#include "AtomCoordinateCV_gpu.h"
+#endif
 #include "AtomPositionCV.h"
 #include "TorsionalCV.h"
 
@@ -63,6 +66,9 @@ namespace SSAGES
             //so here we would decide if we create a gpu or cpu-based collective variables
             //all of the CV parsing structure does not have to be changed other than this
             //would just do for each CV implemented on the GPU
+#ifdef DANMD
+            auto *c = new AtomCoordinateCV_gpu(atomid, index);
+#endif
 			auto* c = new AtomCoordinateCV(atomid, index);
 
 			cv = static_cast<CollectiveVariable*>(c);
