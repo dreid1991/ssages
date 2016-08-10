@@ -87,6 +87,9 @@ elseif(DANMD_SRC)
     include_directories (${DANMD_SRC}/src/Integrators)
     include_directories (${DANMD_SRC}/src/DataStorageUser)
     include_directories (${DANMD_SRC}/src/BondedForcers)
+	set(HOOKSRC
+        hooks/gpu_md/FixSSAGES.cpp
+	)
 	ExternalProject_Add(
 		danmd
 		SOURCE_DIR ${DANMD_SRC}

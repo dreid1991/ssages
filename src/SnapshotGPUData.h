@@ -16,7 +16,7 @@ namespace SSAGES{
             float4 *xs;
             float4 *vs;
             float4 *fs;
-            int *ids;
+            uint *ids;
             int *idToIdxs;
 
 

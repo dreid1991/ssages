@@ -1,7 +1,8 @@
 #pragma once
 #include "Fix.h"
 #include "Hook.h"
-
+#include <string>
+namespace SSAGES {
 	// SSAGES Hook class for LAMMPS implemented as 
 	// a LAMMPS fix. This is activated by adding 
 	// a "ssages" fix to "all". Note that thermo must 
@@ -9,29 +10,25 @@
 	class FixSSAGES : public Fix, SSAGES::Hook
 	{
 	protected:
-		// Implementation of the SyncToEngine interface.
-		void SyncToEngine() override;
+		void SyncToEngine();
 
-		// Implementation of the SyncToSnapshot interface.
-		void SyncToSnapshot() override;
+		void SyncToSnapshot();
 
-        // Implementation of the SyncToEngine interface.
-		void SyncToEngineCPU() override;
+		void SyncToEngineCPU();
 
-		// Implementation of the SyncToSnapshot interface.
-		void SyncToSnapshotCPU() override;
+		void SyncToSnapshotCPU();
 
 
 	public:
-		FixSSAGES(SHARED(State) state, string handle);
+		FixSSAGES(SHARED(State) state, std::string handle);
 
 		// Setup for presimulation call.
         
   	    bool prepareForRun();
 		// Post force where the synchronization occurs.
   		void compute(bool);
-        void postRun();
+        bool postRun();
 
   		// Post-run for post-simulation call.
 	};
-
+};
