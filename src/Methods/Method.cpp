@@ -37,6 +37,7 @@ namespace SSAGES
     //NEED TO ADD FLAG TO SNAPSHOT ABOUT WHETHER IS GPU OR CPU BASED
 		if(type == "Umbrella")
 		{
+            printf("HEY MAKING METHOD\n");
 			reader.parse(JsonSchema::UmbrellaMethod, schema);
 			validator.Parse(schema, path);
 

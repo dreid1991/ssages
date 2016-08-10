@@ -101,11 +101,12 @@ namespace SSAGES
 			_snapshot = new Snapshot(_comm, _wid);
 
 			// Set the hook to snapshot
+            //
 			_hook->SetSnapshot(_snapshot);
 
-		//	_hook->AddListener(_method);
-		//	for(auto&cv : _CVs)
-		//		_hook->AddCV(cv);
+			_hook->AddListener(_method);
+			for(auto&cv : _CVs)
+				_hook->AddCV(cv);
 		}
 	};
 }

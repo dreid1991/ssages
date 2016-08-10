@@ -7,7 +7,7 @@ namespace SSAGES {
 	// a LAMMPS fix. This is activated by adding 
 	// a "ssages" fix to "all". Note that thermo must 
 	// be set to 1 in order for the synchronizing to work.
-	class FixSSAGES : public Fix, SSAGES::Hook
+	class FixSSAGES : public Fix, public SSAGES::Hook
 	{
 	protected:
 		void SyncToEngine();

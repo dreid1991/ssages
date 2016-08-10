@@ -93,6 +93,11 @@ namespace SSAGES
             std::string handle = "ssages fix";
             boost::shared_ptr<FixSSAGES> fixSSAGES = boost::shared_ptr<FixSSAGES>(new FixSSAGES(_state, handle));
             _state->activateFix(fixSSAGES);
+            if(!(_hook = dynamic_cast<Hook*>(fixSSAGES.get())))
+            {
+                throw BuildException({"Unable to dynamic cast hook on node " + std::to_string(_world.rank())});			
+            }
+
 
 		}
 
