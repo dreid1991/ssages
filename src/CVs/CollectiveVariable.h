@@ -81,6 +81,8 @@ namespace SSAGES
 							   CVList& cvlist,
 							   const std::string& path);
         virtual void takeValPtr(float *){}; //for gpu cvs
+        float4 *GetGradient_gpu(){return nullptr;}
+        float *GetValue_gpu(){return nullptr;}
 	};
 
 	// Definitions.

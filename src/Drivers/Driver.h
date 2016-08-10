@@ -90,7 +90,7 @@ namespace SSAGES
 		void BuildMethod(const Json::Value& json, const std::string& path)
 		{
 			// Build method(s).
-		//	_method = Method::BuildMethod(json, _world, _comm, path);
+			_method = Method::BuildMethod(json, _world, _comm, path);
 		}
 
 		// Create the snapshot and put all gathered values into the local hook

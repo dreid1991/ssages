@@ -118,6 +118,8 @@ include_directories("${PROJECT_BINARY_DIR}")
 set(SOURCE
     src/CVs/AtomCoordinateCV_gpu_kernels.cu
     src/CVs/AtomCoordinateCV_gpu.cpp
+    src/Methods/Umbrella_gpu_kernels.cu
+    src/Methods/Umbrella_gpu.cpp
 
 	src/Methods/Meta.cpp
 	src/Methods/Umbrella.cpp

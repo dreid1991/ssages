@@ -13,11 +13,11 @@ namespace SSAGES
 	{
 	private:
 		// Vector of spring constants.
-        GPUArrayGlobal<float> _ksprings;
+        std::vector<double> _ksprings;
 
 
 		// Vector of equilibrium distances.
-        GPUArrayGlobal<float> _centers;
+        std::vector<double> _centers;
 
 		// iterator for this method
 		int _currentiter;
@@ -29,12 +29,12 @@ namespace SSAGES
 		// Create instance of umbrella with spring constants "kspring", 
 		// and centers "centers". Note the sizes of the vectors should be 
 		// commensurate with the number of CVs.
-		Umbrella(boost::mpi::communicator& world,
+		Umbrella_gpu(boost::mpi::communicator& world,
 				 boost::mpi::communicator& comm,
 				 const std::vector<double>& ksprings,
 				 const std::vector<double>& centers,
 				 unsigned int frequency) : 
-		Method(frequency, world, comm), _ksprings(ksprings), _centers(centers);
+		Method(frequency, world, comm), _ksprings(ksprings), _centers(centers)
 		{}
 
 		// Pre-simulation hook.

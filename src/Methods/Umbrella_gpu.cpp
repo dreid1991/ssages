@@ -5,7 +5,7 @@
 namespace SSAGES
 {
 
-	void Umbrella::PreSimulation(Snapshot*, const CVList& cvs)
+	void Umbrella_gpu::PreSimulation(Snapshot*, const CVList& cvs)
 	{
 		if(_comm.rank() ==0)
 		{
@@ -16,30 +16,30 @@ namespace SSAGES
 		 }
 	}
 
-	void Umbrella::PostIntegration(Snapshot* snapshot, const CVList& cvs)
+	void Umbrella_gpu::PostIntegration(Snapshot* snapshot, const CVList& cvs)
 	{
 		// Compute the forces on the atoms from the CV's using the chain 
 		// rule.
-		auto& forces = snapshot->GetForces();
+        
 		for(size_t i = 0; i < cvs.size(); ++i)
 		{
 			// Get current CV and gradient.
 			auto& cv = cvs[i];
-			auto& grad = cv->GetGradient();
+            float *val = cv->GetValue_gpu();
+			float4 *grad = cv->GetGradient_gpu();
+            float4 *fs = snapshot->_gpd.fs;
+            float center = _centers[i];
+            float k = _ksprings[i];
+            int nAtoms = snapshot->_gpd.nAtoms;
 
-			// Compute dV/dCV.
-			auto D = _kspring[i]*(cv->GetDifference(_centers[i]));
-
-			// Update forces.
-			for(size_t j = 0; j < forces.size(); ++j)
-				for(size_t k = 0; k < forces[j].size(); ++k)
-					forces[j][k] -= D*grad[j][k];
+            
+            call_umbrella_eval(fs, val, grad, center, k, nAtoms);
 		}
-		PrintUmbrella(cvs);
+		//PrintUmbrella(cvs);
 		_currentiter++;
 	}
 
-	void Umbrella::PostSimulation(Snapshot*, const CVList&)
+	void Umbrella_gpu::PostSimulation(Snapshot*, const CVList&)
 	{
 		if(_comm.rank() ==0)
 		{
@@ -47,8 +47,9 @@ namespace SSAGES
 		}
 	}
 
-	void Umbrella::PrintUmbrella(const CVList& CV)
+	void Umbrella_gpu::PrintUmbrella(const CVList& CV)
 	{
+        /*
 		if(_comm.rank() ==0)
 		{
 			_umbrella.precision(8);
@@ -59,5 +60,6 @@ namespace SSAGES
 
 			_umbrella<<std::endl;
 		}
+        */
 	}
 }

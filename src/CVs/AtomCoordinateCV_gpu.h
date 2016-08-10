@@ -82,5 +82,11 @@ namespace SSAGES
 		{
             return 0;
 		}
+        float4 *GetGradient_gpu() {
+            return _grad.data();
+        }
+        float *GetValue_gpu() {
+            return _val;
+        }
 	};
 }

@@ -8,6 +8,7 @@
 #include "../Utility/BuildException.h"
 #include "../Utility/PythonHelpers.h"
 #include "State.h"
+#include "../hooks/gpu_md/FixSSAGES.h"
 namespace mpi = boost::mpi;
 using namespace Json;
 namespace py = boost::python;
@@ -89,7 +90,9 @@ namespace SSAGES
             } catch (py::error_already_set &) {
                 PythonHelpers::printErrors();
             }
-            //REMEMBER TO CREATE THE FIX!!oneone
+            std::string handle = "ssages fix";
+            boost::shared_ptr<FixSSAGES> fixSSAGES = boost::shared_ptr<FixSSAGES>(new FixSSAGES(_state, handle));
+            _state->activateFix(fixSSAGES);
 
 		}
 

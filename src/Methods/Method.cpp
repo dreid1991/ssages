@@ -8,6 +8,7 @@
 #include "FiniteTempString.h"
 #include "Meta.h"
 #include "Umbrella.h"
+#include "Umbrella_gpu.h"
 #include "ForwardFlux.h"
 
 using namespace Json;
@@ -56,8 +57,11 @@ namespace SSAGES
 				throw BuildException({"Need to define a spring for every center or a center for every spring!"});
 
 			auto freq = json.get("frequency", 1).asInt();
-
+#ifdef DANMD
+			auto* m = new Umbrella_gpu(world, comm, ksprings, centers, freq);
+#else
 			auto* m = new Umbrella(world, comm, ksprings, centers, freq);
+#endif
 
 			method = static_cast<Method*>(m);
 		}
