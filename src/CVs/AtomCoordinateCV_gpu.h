@@ -19,12 +19,11 @@ namespace SSAGES
 		// Index of dimension. 0 -> x, 1 -> y, 2 -> z.
 		int _index;
 
-		// pointer to cvValArray + myIdxInCVList
-		float *_val;
 
 		// Gradient vector dOP/dxi.
         //
         GPUArrayDeviceGlobal<float4> _grad;
+        GPUArrayDeviceGlobal<float> _val;
         std::vector<Vector3> junkForCompliance;
         std::array<double, 2> moreJunkForCompliance;
 
@@ -43,11 +42,13 @@ namespace SSAGES
 		void Initialize(const Snapshot& snapshot) override
 		{
 			// Initialize gradient. 
-			auto n = snapshot.GetPositions().size();
+            printf("I AM INITIALIZING\n");
+			int n = snapshot._gpd.nAtoms;
             _grad = GPUArrayDeviceGlobal<float4>(n);
+            _val = GPUArrayDeviceGlobal<float>(100);
 		}
         void takeValPtr(float *val) {
-            _val = val;
+            //_val = val;
         }
 
 		// Evaluate the CV.
@@ -86,7 +87,7 @@ namespace SSAGES
             return _grad.data();
         }
         float *GetValue_gpu() {
-            return _val;
+            return _val.data();
         }
 	};
 }

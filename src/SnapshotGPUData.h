@@ -20,7 +20,7 @@ namespace SSAGES{
             int *idToIdxs;
 
 
-            GPUArrayDeviceGlobal<float> cvValues;
+            //GPUArrayDeviceGlobal<float> cvValues;
             bool xsFormatSame, vsFormatSame, fsFormatSame, idsFormatSame;
 
             bool xsIsProcessed, vsIsProcesses, fsIsProcessed, idsIsProcessed;

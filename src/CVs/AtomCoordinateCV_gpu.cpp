@@ -12,7 +12,7 @@ void AtomCoordinateCV_gpu::Evaluate(const Snapshot& snapshot)
     const auto& ids = snapshot.GetAtomIDs();
     int nAtoms = snapshot._gpd.nAtoms;
     // Loop through atom positions.
-    call_atom_coordinate_eval(xs, idToIdxs, _val, _grad.data(), _atomid, _index, nAtoms);
+    call_atom_coordinate_eval(xs, idToIdxs, _val.data(), _grad.data(), _atomid, _index, nAtoms);
 
 }
 
