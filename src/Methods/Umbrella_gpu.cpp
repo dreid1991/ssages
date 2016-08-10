@@ -31,7 +31,6 @@ namespace SSAGES
             float center = _centers[i];
             float k = _ksprings[i];
             int nAtoms = snapshot->_gpd.nAtoms;
-            printf("going to call, nAtoms is %d %f %f\n", nAtoms, k, center);
             
             call_umbrella_eval(fs, val, grad, center, k, nAtoms);
 		}

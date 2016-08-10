@@ -50,7 +50,7 @@ namespace SSAGES
         _snapshot->_gpd.vs = gpd.vs.getDevData();
         _snapshot->_gpd.fs = gpd.fs.getDevData();
         _snapshot->_gpd.ids = gpd.ids.getDevData();
-        _snapshot->_gpd.idToIdxs = gpd.idToIdxs.getDevData();
+        _snapshot->_gpd.idToIdxs = gpd.idToIdxs.d_data.data();
     }
     void FixSSAGES::SyncToEngine() {
         //nothing here - operating on the same list on the gpu    

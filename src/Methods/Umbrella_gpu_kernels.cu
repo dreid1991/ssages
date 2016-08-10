@@ -5,17 +5,13 @@ __global__ void umbrella_eval(float4 *fs, float *val, float4 *grad, float center
     int idx = GETIDX();
     if (idx < nAtoms) {
         float v = val[0];
-        printf("from kernel, v is %f\n", v);
         float4 f = fs[idx];
-        printf("idx is %d\n", idx);
-        printf("fw is %f\n", f.w);
         float wOrig = f.w;
         float4 g = grad[idx];
-        printf("g is %f\n", g.x);
         float mag = k * (v - center);
-        printf("v is %f, center is %f, mag is %f\n", v, center, mag);
         g = g * mag;
         f -= g;
+        //printf("g is %f %f %f %f\n", g.x, g.y, g.z, g.w);
         f.w = wOrig;
         fs[idx] = f;
     }
