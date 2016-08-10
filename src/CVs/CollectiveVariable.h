@@ -80,6 +80,7 @@ namespace SSAGES
 		static void BuildCV(const Json::Value& json, 
 							   CVList& cvlist,
 							   const std::string& path);
+        virtual void takeValPtr(float *){}; //for gpu cvs
 	};
 
 	// Definitions.

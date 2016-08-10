@@ -30,12 +30,13 @@ namespace SSAGES{
           //  GPUArrayDeviceGlobal<float4> fsProcessed;
           //  GPUArrayDeviceGlobal<int> idsProcessed;
           //  GPUArrayDeviceGlobal<int> typesProcessed;
-            resetIsProcessed() {
-                xsIsProcessed = false;
-                vsIsProcessed = false;
-                fsIsProcessed = false;
-                idsIsProcessed = false;
+            void resetIsProcessed() {
+               // xsIsProcessed = false;
+               // vsIsProcessed = false;
+                //fsIsProcessed = false;
+                //idsIsProcessed = false;
             }
+            /*
             float4 *GetPositions () {
                 if (xsFormatSame) {
                     return xs;
@@ -80,6 +81,7 @@ namespace SSAGES{
                     return idsProcessed.ptr;
                 }
             }
+            */
 
     };
 }

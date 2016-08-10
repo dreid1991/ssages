@@ -14,7 +14,7 @@ include_directories(${MPI_INCLUDE_PATH})
 find_package(Boost
 	1.55
 	REQUIRED
-	COMPONENTS mpi serialization
+	COMPONENTS mpi serialization python
 )
 
 # Package src directories
@@ -80,7 +80,7 @@ elseif(DANMD_SRC)
     find_package (PythonLibs 2.7 REQUIRED)
     include_directories (${PYTHON_INCLUDE_DIRS})
     find_package(CUDA REQUIRED)
-    find_package (Boost COMPONENTS python mpi serialization REQUIRED)
+    #  find_package (Boost COMPONENTS python mpi serialization REQUIRED)
     include_directories (${CUDA_INCLUDE_DIRS})
     include_directories (${DANMD_SRC}/src/GPUArrays)
     include_directories (${DANMD_SRC}/src/Fixes)
@@ -113,7 +113,9 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 # General source files
 set(SOURCE
-    src/CVs/AtomCoordinateCV_gpu.cu
+    src/CVs/AtomCoordinateCV_gpu_kernels.cu
+    src/CVs/AtomCoordinateCV_gpu.cpp
+
 	src/Methods/Meta.cpp
 	src/Methods/Umbrella.cpp
 	src/Methods/ElasticBand.cpp
@@ -155,7 +157,7 @@ configure_file (
 )
 
 # Dependencies. 
-message(STATUS "md_engine dir is " ${Boost_LIBRARIES})
+message(STATUS "boost lib dirs " ${Boost_LIBRARIES})
 if(LAMMPS_SRC)
 	add_dependencies(lammps libssages)
 	target_link_libraries(ssages libssages ${LAMMPS_SRC}/liblammps_mpi.so)

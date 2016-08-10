@@ -4,7 +4,10 @@
 #include <boost/mpi.hpp>
 #include "json/json.h"
 #include "JSON/Serializable.h"
-
+#define DANMD //fix later
+#ifdef DANMD
+#include "SnapshotGPUData.h"
+#endif
 namespace SSAGES
 {
 	using Vector3 = std::array<double, 3>;
@@ -41,11 +44,11 @@ namespace SSAGES
 		double _volume; //!< Volume of Simultion box
 
 		bool _changed; //!< \c TRUE is Simulation state changed
+
+	public:
 #ifdef DANMD
         SnapshotGPUData _gpd;
 #endif
-
-	public:
 		//! Constructor
 		/*!
 		 * \param comm MPI communicator

@@ -10,7 +10,7 @@ namespace SSAGES
 	// Collective variable on an atom coordinate. This will
 	// return the value of either the x, y, or z coordinate
 	// depending on the user specification for a defined atom.
-	class AtomCoordinateCV : public CollectiveVariable
+	class AtomCoordinateCV_gpu : public CollectiveVariable
 	{
 	private:
 		// ID of atom of interest.
@@ -25,6 +25,8 @@ namespace SSAGES
 		// Gradient vector dOP/dxi.
         //
         GPUArrayDeviceGlobal<float4> _grad;
+        std::vector<Vector3> junkForCompliance;
+        std::array<double, 2> moreJunkForCompliance;
 
 
 	public:
@@ -32,8 +34,8 @@ namespace SSAGES
 		// ID of the atom of interest, and index specifies the dimension 
 		// to report with 0 -> x, 1 -> y, 2 -> z. 
 		// TODO: bounds needs to be an input.
-		AtomCoordinateCV_gpu(int atomid, int index, float *val) : 
-		_atomid(atomid), _index(index), _val(val)
+		AtomCoordinateCV_gpu(int atomid, int index) :
+		_atomid(atomid), _index(index)
 		{
 		}
 
@@ -44,54 +46,19 @@ namespace SSAGES
 			auto n = snapshot.GetPositions().size();
             _grad = GPUArrayDeviceGlobal<float4>(n);
 		}
+        void takeValPtr(float *val) {
+            _val = val;
+        }
 
 		// Evaluate the CV.
 		void Evaluate(const Snapshot& snapshot) override;
-		{
-			// Gradient and value. 
-			const auto& pos = snapshot.GetPositions(); 
-			const auto& ids = snapshot.GetAtomIDs();
-
-			// Loop through atom positions.
-			for(size_t i = 0; i < pos.size(); ++i)
-			{
-				// We are at the ID of interest.
-				if(ids[i] == _atomid)
-				{
-					// We set the gradient to zero, and only 
-					// set to unity the dimension of interest.
-					_grad[i][0] = 0;
-					_grad[i][1] = 0;
-					_grad[i][2] = 0;
-					switch(_index)
-					{
-						case 0:
-							_val = pos[i][0];
-							_grad[i][0] = 1.0;
-							break;
-						case 1:
-							_val = pos[i][1];
-							_grad[i][1] = 1.0;
-							break;
-						case 2:
-							_val = pos[i][2];
-							_grad[i][2] = 1.0;
-							break;
-					}
-				}
-				else
-				{
-					_grad[i][0] = 0;
-					_grad[i][1] = 0;
-					_grad[i][2] = 0;
-				}
-			}
-		}
+	
 
 		// Return the value of the CV.
 		double GetValue() const override 
 		{ 
-			return _val; 
+			//return _val; 
+            return 0;
 		}
 
 		double GetPeriodicValue(double Location) const override
@@ -102,18 +69,18 @@ namespace SSAGES
 		// Return the gradient of the CV.
 		const std::vector<Vector3>& GetGradient() const override
 		{
-			return _grad;
+            return junkForCompliance;
 		}
 
 		// Return the boundaries of the CV.
 		const std::array<double, 2>& GetBoundaries() const override
 		{
-			return _bounds;
+			return moreJunkForCompliance;
 		}
 
 		double GetDifference(const double Location) const override
 		{
-			return _val - Location;
+            return 0;
 		}
 	};
 }

@@ -51,13 +51,21 @@ namespace SSAGES
 		 */
 		void PreSimulationHook()
 		{
+#ifdef DANMD
+            _snapshot->_gpd.cvValues = GPUArrayDeviceGlobal<float>(_cvs.size());
+#endif
 			_snapshot->Changed(false);
 		
 			// Initialize/evaluate CVs.
+            int idx = 0;
 			for(auto& cv : _cvs)
 			{
 				cv->Initialize(*_snapshot);
+#ifdef DANMD
+                cv->takeValPtr(_snapshot->_gpd.cvValues.data() + idx);
+#endif
 				cv->Evaluate(*_snapshot);
+                idx++;
 			}
 
 			// Call presimulation method on listeners. 

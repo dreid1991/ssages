@@ -67,9 +67,11 @@ namespace SSAGES
             //all of the CV parsing structure does not have to be changed other than this
             //would just do for each CV implemented on the GPU
 #ifdef DANMD
+            //SURE WOULD BE NICE IF I COULD TELL WHICH ENGINE I'M RUNNING
             auto *c = new AtomCoordinateCV_gpu(atomid, index);
-#endif
+#else
 			auto* c = new AtomCoordinateCV(atomid, index);
+#endif
 
 			cv = static_cast<CollectiveVariable*>(c);
 		}
