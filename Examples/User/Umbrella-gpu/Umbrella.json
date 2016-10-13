@@ -1,0 +1,26 @@
+{
+    "driver": [
+        {
+            "MDSteps": 10000,
+            "CVs": [
+                {
+                    "dimension": "x",
+                    "type": "AtomCoordinate",
+                    "atom id": 1
+                }
+            ],
+            "logfile": "none",
+            "type": "DANMD",
+            "method": {
+                "ksprings": [
+                    0.00
+                ],
+                "type": "Umbrella",
+                "centers": [
+                   24
+                ]
+            }
+        }
+    ],
+    "inputfile": "run.py"
+}

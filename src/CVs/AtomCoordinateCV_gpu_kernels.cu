@@ -24,5 +24,5 @@ __global__ void call_atom_coordinate_eval_cu(float4 *xs, uint *ids, float *val, 
     }
 }
 void call_atom_coordinate_eval(float4 *xs, uint *ids, float *val, float4 *grad, int atomId, int index, int nAtoms) {
-    SAFECALL((call_atom_coordinate_eval_cu<<<NBLOCK(nAtoms), PERBLOCK>>>(xs, ids, val, grad, atomId, index, nAtoms)));
+    call_atom_coordinate_eval_cu<<<NBLOCK(nAtoms), PERBLOCK>>>(xs, ids, val, grad, atomId, index, nAtoms);
 }

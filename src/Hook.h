@@ -65,6 +65,7 @@ namespace SSAGES
 #ifdef DANMD
            //     cv->takeValPtr(_snapshot->_gpd.cvValues.data() + idx);
 #endif
+                printf("EVALUATING IN SETUP\n");
 				cv->Evaluate(*_snapshot);
                 idx++;
 			}

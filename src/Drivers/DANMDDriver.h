@@ -82,6 +82,7 @@ namespace SSAGES
 
             }
             try {
+                printf("I'M GOING TO CALL SETUP\n");
                 _statePy = py::call<py::object>(setupSimulation);
                 std::string asStr = py::extract<std::string>(py::str(_statePy));
                 std::cout << "Received the following from " << setupFuncName << ":" << std::endl;
