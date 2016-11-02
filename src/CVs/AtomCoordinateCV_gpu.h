@@ -44,9 +44,8 @@ namespace SSAGES
 			// Initialize gradient. 
             printf("I AM INITIALIZING\n");
 			int n = snapshot._gpd.nAtoms;
-            printf("n atoms is %d\n", n);
             _grad = GPUArrayDeviceGlobal<float4>(n);
-            _val = GPUArrayDeviceGlobal<float>(100);//uhhh, why 100?
+            _val = GPUArrayDeviceGlobal<float>(100);
 		}
         void takeValPtr(float *val) {
             //_val = val;

@@ -7,12 +7,9 @@ namespace SSAGES
 
 	void Umbrella_gpu::PreSimulation(Snapshot*, const CVList& cvs)
 	{
-		if(_comm.rank() ==0)
+		if(_comm.rank() == 0)
 		{
-			char file[1024];
-			sprintf(file, "node-%d.log", _world.rank());
-		 	_umbrella.open(file);
-		 	_currentiter = 0;
+		 	_umbrella.open(_filename.c_str(), std::ofstream::out | std::ofstream::app);
 		 }
 	}
 
@@ -29,13 +26,15 @@ namespace SSAGES
 			float4 *grad = cv->GetGradient_gpu();
             float4 *fs = snapshot->_gpd.fs;
             float center = _centers[i];
-            float k = _ksprings[i];
+            float k = _kspring[i];
             int nAtoms = snapshot->_gpd.nAtoms;
             
             call_umbrella_eval(fs, val, grad, center, k, nAtoms);
 		}
-		//PrintUmbrella(cvs);
-		_currentiter++;
+
+		_iteration++;
+		if(_iteration % _logevery == 0)
+			PrintUmbrella(cvs);
 	}
 
 	void Umbrella_gpu::PostSimulation(Snapshot*, const CVList&)
@@ -48,17 +47,17 @@ namespace SSAGES
 
 	void Umbrella_gpu::PrintUmbrella(const CVList& CV)
 	{
-        /*
+//          TODO
 		if(_comm.rank() ==0)
 		{
 			_umbrella.precision(8);
-			_umbrella << _currentiter << " ";
+			_umbrella << _iteration << " ";
 
 			for(size_t jj = 0; jj < _centers.size(); jj++)
-				_umbrella<< _centers[jj] << " " << CV[jj]->GetValue()<< " "; 
+				_umbrella/*<< _centers[jj] << " " */<< CV[jj]->GetValue()<< " "; 
 
 			_umbrella<<std::endl;
 		}
-        */
+        
 	}
 }

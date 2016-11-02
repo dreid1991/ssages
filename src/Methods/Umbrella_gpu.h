@@ -13,16 +13,20 @@ namespace SSAGES
 	{
 	private:
 		// Vector of spring constants.
-        std::vector<double> _ksprings;
+        std::vector<double> _kspring;
 
 
 		// Vector of equilibrium distances.
         std::vector<double> _centers;
 
-		// iterator for this method
-		int _currentiter;
 
-		// Output stream for umbrella data.
+		//! File name
+		std::string _filename;
+
+		//! Log every n time steps
+		int _logevery;
+        
+        // Output stream for umbrella data.
 		std::ofstream _umbrella;
 
 	public:
@@ -33,8 +37,10 @@ namespace SSAGES
 				 boost::mpi::communicator& comm,
 				 const std::vector<double>& ksprings,
 				 const std::vector<double>& centers,
+				 std::string name,               
 				 unsigned int frequency) : 
-		Method(frequency, world, comm), _ksprings(ksprings), _centers(centers)
+		Method(frequency, world, comm), _kspring(ksprings), _centers(centers),
+		_filename(name), _logevery(1)
 		{}
 
 		// Pre-simulation hook.
@@ -48,9 +54,25 @@ namespace SSAGES
 		
 		void PrintUmbrella(const CVList& cvs);
 
+        void SetLogStep(const int iter)
+		{
+			_logevery = iter;
+		}
+        
 		void Serialize(Json::Value& json) const override
 		{
+			json["type"] = "Umbrella";
+			for(auto& k : _kspring)
+				json["ksprings"].append(k);
 
+			for(auto& c : _centers)
+				json["centers"].append(c);
+
+			json["file name"] = _filename;
+
+			json["iteration"] = _iteration;
+
+			json["log every"] = _logevery;
 		}
 
 	};

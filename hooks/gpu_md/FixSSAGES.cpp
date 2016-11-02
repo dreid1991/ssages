@@ -10,6 +10,14 @@ namespace SSAGES
 	Fix(state, handle, "all", "fillInATypePlease", false, false, false, 1),
     Hook()
 	{
+		///////Test Umbrella//////////////////////////////
+		//this->AddListener(new Umbrella({100.0}, {0}, 1));
+		//this->AddCV(new AtomCoordinateCV(1, 0));
+
+		///////Test MetaDynamics//////////////////////////
+	//	this->AddListener(new Meta(0.5, {0.05, 0.05}, 500, 1));
+	//	this->AddCV(new AtomCoordinateCV(1, 0));
+	//	this->AddCV(new AtomCoordinateCV(1, 1));
 	}
 
 	bool FixSSAGES::prepareForRun()
@@ -31,8 +39,8 @@ namespace SSAGES
 	bool FixSSAGES::postRun()
 	{
         //data is back on cpu at this point
-//		SyncToSnapshotCPU();
-//		Hook::PostSimulationHook();
+		SyncToSnapshotCPU();
+		Hook::PostSimulationHook();
         return true;
 	}
     void FixSSAGES::SyncToSnapshot() {
@@ -43,6 +51,9 @@ namespace SSAGES
         _snapshot->_gpd.fs = gpd.fs.getDevData();
         _snapshot->_gpd.ids = gpd.ids.getDevData();
         _snapshot->_gpd.idToIdxs = gpd.idToIdxs.d_data.data();
+        _snapshot->_gpd.warpSize=state->devManager.prop.warpSize;
+        _snapshot->_gpd.boundsGPU=state->boundsGPU;
+        
     }
     void FixSSAGES::SyncToEngine() {
         //nothing here - operating on the same list on the gpu    

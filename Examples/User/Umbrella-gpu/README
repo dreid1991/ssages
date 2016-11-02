@@ -1,9 +1,0 @@
-run using 
-path/to/ssages Umbrella.json
-
-
-
-run.py holds two functions - setupSimulation, which must return the state such that it is ready to run the simulation
-and runSimultion, which takes the state and a number of turns to turn, and carries out the run.
-
-You must set the ROOT variable in run.py to the directory where the engine is located

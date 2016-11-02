@@ -18,6 +18,6 @@ __global__ void umbrella_eval(float4 *fs, float *val, float4 *grad, float center
 }
 
 void call_umbrella_eval(float4 *fs, float *val, float4 *grad, float center, float k, int nAtoms) {
-    umbrella_eval<<<NBLOCK(nAtoms), PERBLOCK>>>(fs, val, grad, center, k, nAtoms);
+    SAFECALL((umbrella_eval<<<NBLOCK(nAtoms), PERBLOCK>>>(fs, val, grad, center, k, nAtoms)));
 
 }

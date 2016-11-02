@@ -1,5 +1,6 @@
 #pragma once
 #include "GPUArrayDeviceGlobal.h"
+#include "BoundsGPU.h"
 namespace SSAGES{
     class SnapshotGPUData {
         private:
@@ -19,7 +20,10 @@ namespace SSAGES{
             uint *ids;
             int *idToIdxs;
 
-
+            int warpSize; //device properties
+            
+            BoundsGPU boundsGPU;//GPU bounds
+            
             //GPUArrayDeviceGlobal<float> cvValues;
             bool xsFormatSame, vsFormatSame, fsFormatSame, idsFormatSame;
 

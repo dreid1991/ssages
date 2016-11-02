@@ -3,9 +3,9 @@
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
 #include "Drivers/Driver.h"
+#include "Drivers/DriverException.h"
 #include "../Validator/ObjectRequirement.h"
-#include "../include/schema.h"
-#include "../Utility/BuildException.h"
+#include "schema.h"
 #include "../Utility/PythonHelpers.h"
 #include "State.h"
 #include "../hooks/gpu_md/FixSSAGES.h"
@@ -82,7 +82,6 @@ namespace SSAGES
 
             }
             try {
-                printf("I'M GOING TO CALL SETUP\n");
                 _statePy = py::call<py::object>(setupSimulation);
                 std::string asStr = py::extract<std::string>(py::str(_statePy));
                 std::cout << "Received the following from " << setupFuncName << ":" << std::endl;
