@@ -41,8 +41,6 @@ namespace SSAGES
 		//! Vector of event listeners.
 		std::vector<EventListener*> _listeners;
 
-		//! Vector of CVs.
-		CVList _cvs;
 
 		//! Driver running this hook
 		Driver* _MDDriver;
@@ -50,12 +48,16 @@ namespace SSAGES
 	protected:
 		//! Local snapshot.
 		Snapshot* _snapshot;
+        //
+		//! Vector of CVs.
+		CVList _cvs;
 
 		//! Synchronization to the simulation engine
 		/*!
 		 * A Hook must implement this method. It takes data from the snapshot
 		 * and updates the simulation engine with it.
 		 */
+
 		virtual void SyncToEngine() = 0;
 
 		//! Synchronization to the snapshot
@@ -64,10 +66,6 @@ namespace SSAGES
 		 * eingine and updates the snapshot with it.
 		 */
 		virtual void SyncToSnapshot() = 0;
-#ifdef DANMD
-        virtual void SyncToSnapshotCPU() = 0;
-        virtual void SyncToEngineCPU() = 0;
-#endif
 	public:
 		//! Constructor
 		/*!
@@ -109,19 +107,12 @@ namespace SSAGES
 		 */
 		void PreSimulationHook()
 		{
-#ifdef DANMD
-           // _snapshot->_gpd.cvValues = GPUArrayDeviceGlobal<float>(_cvs.size());
-            printf("CVS.size is %d\n", _cvs.size());
-#endif          
 			_snapshot->Changed(false);
 		
 			// Initialize/evaluate CVs.
 			for(auto& cv : _cvs)
 			{
 				cv->Initialize(*_snapshot);
-#ifdef DANMD
-           //     cv->takeValPtr(_snapshot->_gpd.cvValues.data() + idx);
-#endif                
 				cv->Evaluate(*_snapshot);
 			}
 

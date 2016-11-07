@@ -345,6 +345,8 @@ elseif(DANMD OR DANMD_SRC)
     include_directories (${DANMD_SRC}/src/BondedForcers)
 	set(HOOKSRC
         hooks/gpu_md/FixSSAGES.cpp
+        hooks/gpu_md/hook_kernels.cu
+
 	)
 	ExternalProject_Add(
 		danmd
@@ -375,10 +377,6 @@ add_subdirectory (schema)
 
 # General source files
 set(SOURCE
-    src/CVs/ParticleCoordinateCV_gpu_kernels.cu
-    src/CVs/ParticleCoordinateCV_gpu.cpp
-    src/Methods/Umbrella_gpu_kernels.cu
-    src/Methods/Umbrella_gpu.cpp
 
 	src/Methods/Meta.cpp
 	src/Methods/Umbrella.cpp

@@ -2,6 +2,8 @@
 
 #include "FixSSAGES.h"
 #include "State.h"
+#include <set>
+#include "hook_kernels.h"
 //HEY - YOU NEED TO ADD force_last AS ONE OF THE PER-ATOM VARIABLES IF YOU WANT TO BE ABLE TO FULLY TRANSFER STATES
 using namespace SSAGES;
 namespace SSAGES
@@ -25,8 +27,52 @@ namespace SSAGES
         //so this is always called while data is on cpu
 		// Allocate vectors for snapshot.
 
+
+        std::set<int> allActiveIds;
+        for(auto& cv : _cvs) {
+            std::vector<int> ids = cv->getIds();
+            for (int id : ids) {
+                allActiveIds.insert(id);
+            }
+        }
+        std::vector<uint> activeIds;
+        for (int x : allActiveIds) {
+            activeIds.push_back(x);
+            printf("ACTIVE ID %d\n", x);
+        }
+        _activeIds = GPUArrayGlobal<uint>(activeIds);
+        _activeIds.dataToDevice();
+        //need to copy off xs, vs, fs, ids
+        int n = _activeIds.size();
+
+        int totalBufferSize = (sizeof(float4) + sizeof(float4) + sizeof(float4) + sizeof(int)) * n;
+
+        _dataBuffer = GPUArrayGlobal<char>(totalBufferSize);
+        _forceBuffer = GPUArrayGlobal<float4>(n);
+
+
+		_snapshot->SetNumAtoms(n);
+
+		auto& pos = _snapshot->GetPositions();
+		pos.resize(n);
+		auto& vel = _snapshot->GetVelocities();
+		vel.resize(n);
+		auto& frc = _snapshot->GetForces();
+		frc.resize(n);
+		auto& masses = _snapshot->GetMasses();
+		masses.resize(n);
+		auto& ids = _snapshot->GetAtomIDs();
+		ids.resize(n);
+		auto& types = _snapshot->GetAtomTypes();
+		types.resize(n);
+
+        //ignoring charges for now. Will need them when config-reset stuff is implemented
 		SyncToSnapshot();
+        /*
 		Hook::PreSimulationHook();
+
+
+        */
         return true;
 	}
 
@@ -38,109 +84,94 @@ namespace SSAGES
 
 	bool FixSSAGES::postRun()
 	{
-        //data is back on cpu at this point
-		SyncToSnapshotCPU();
+		SyncToSnapshot();
 		Hook::PostSimulationHook();
         return true;
 	}
     void FixSSAGES::SyncToSnapshot() {
-        GPUData &gpd = state->gpd;
-        _snapshot->_gpd.nAtoms = state->atoms.size();
-        _snapshot->_gpd.xs = gpd.xs.getDevData();
-        _snapshot->_gpd.vs = gpd.vs.getDevData();
-        _snapshot->_gpd.fs = gpd.fs.getDevData();
-        _snapshot->_gpd.ids = gpd.ids.getDevData();
-        _snapshot->_gpd.idToIdxs = gpd.idToIdxs.d_data.data();
-        _snapshot->_gpd.warpSize=state->devManager.prop.warpSize;
-        _snapshot->_gpd.boundsGPU=state->boundsGPU;
+        BoundsGPU bounds = state->boundsGPU;
+		Matrix3 H;
+		H << bounds.rectComponents.x, 0, 0, 
+		                0, bounds.rectComponents.y, 0,
+		                0,            0, bounds.rectComponents.z;
+
+		_snapshot->SetHMatrix(H);
+
+		// Get box origin. 
+		Vector3 origin;
+		origin = {
+			bounds.lo.x,
+			bounds.lo.y,
+			bounds.lo.z
+		};
+	
+		_snapshot->SetOrigin(origin);
+
+		// Set periodicity. 
+		_snapshot->SetPeriodicity({
+			bounds.periodic.x,
+			bounds.periodic.y,
+			bounds.periodic.z
+		});
+
+
+
+
+
+        int n = _snapshot->GetNumAtoms();
+        copyToBuffer(state->gpd.xs.getDevData(), state->gpd.vs.getDevData(), state->gpd.ids.getDevData(), state->gpd.idToIdxs.d_data.data(), _dataBuffer.d_data.data(), _activeIds.getDevData(), n);
+        _dataBuffer.dataToHost();
+        cudaDeviceSynchronize();
+        auto& pos = _snapshot->GetPositions();
+		auto& vel = _snapshot->GetVelocities();
+		auto& frc = _snapshot->GetForces();
+		auto& masses = _snapshot->GetMasses();
+		auto& ids = _snapshot->GetAtomIDs();
+		auto& types = _snapshot->GetAtomTypes();
+
+
+        float4 *posesPreproc = (float4 *) _dataBuffer.h_data.data();
+        float4 *velsPreproc = ((float4 *) _dataBuffer.h_data.data()) + n;
+        uint *idsPreproc = (uint *) (((float4 *) _dataBuffer.h_data.data()) + 2 * n);
+        //float4 *posesPreproc = _dataBuffer.h_data.begin();
+        for (int i=0; i<n; i++) {
+            float4 posPre = posesPreproc[i];
+            float4 velPre = velsPreproc[i];
+            uint idPre = idsPreproc[i];
+            int type = * (int *) &posPre.w;
+            double mass = 1.0 / velPre.w;
+            pos[i][0] = posPre.x;
+            pos[i][1] = posPre.y;
+            pos[i][2] = posPre.z;
+
+            vel[i][0] = velPre.x;
+            vel[i][1] = velPre.y;
+            vel[i][2] = velPre.z;
+
+            frc[i][0] = 0; //ASSUMING BIASING FORCES DO NOT DEPEND ON CURRENT FORCE
+            frc[i][1] = 0;
+            frc[i][2] = 0;
+
+            masses[i] = mass;
+            types[i] = type;
+            ids[i] = idPre;
+        }
+
         
     }
     void FixSSAGES::SyncToEngine() {
-        //nothing here - operating on the same list on the gpu    
-    }
-	void FixSSAGES::SyncToSnapshotCPU()
-	{
-        /*
-        //NEED TO ADD GROUPTAG TO SSAGES SNAPSHOT AND COPY IT ON/OFF OF GPU
-        GPUData &gpd = state->gpd;
-        gpd.xs.dataToHost();
-        gpd.vs.dataToHost();
-        gpd.fs.dataToHost();
-        gpd.ids.dataToHost();
-        cudaDeviceSynchronize();
-        //this is only called when data in cpu, so between runs (like when exchanging walkers or something)	
-
-		auto& pos = _snapshot->GetPositions();
-		auto& vel = _snapshot->GetVelocities();
+        int n = _snapshot->GetNumAtoms();
 		auto& frc = _snapshot->GetForces();
-
-		// Labels and ids for future work on only updating
-		// atoms that have changed.
-		auto& ids = _snapshot->GetAtomIDs();
-		auto& types = _snapshot->GetAtomTypes();
-        std::vector<double> _snapshot->GetAtomMasses();
-
-		// Get iteration.
-		_snapshot.SetIteration(state->turn);
-		
-		// Get volume.
-		double vol = state->bounds.volume();
-		_snapshot.SetVolume(vol);
-        //set temperature, eng?
-
-        int nAtoms = state->atoms.size();
-         * LATERRR
-        for (int i=0; i<nAtoms; i++) {
-            pos[i] = Vector3(double(gpd.xs.h_data[i].x), double(gpd.xs.h_data[i].y), double(gpd.xs.h_data[i].z));
-            //same for the rest
-            vel[i] = atoms.vel;
-            frc[i] = atom.force;
-
-            ids[i] = atom.id;
-            types[i] = atom.type; 
+        for (int i=0; i<n; i++) {
+            _forceBuffer.h_data[i].x = frc[i][0];
+            _forceBuffer.h_data[i].y = frc[i][1];
+            _forceBuffer.h_data[i].z = frc[i][2];
         }
-        */
-		// Update values.
-        
-			
+        _forceBuffer.dataToDevice();
+
+        unpackBuffer(state->gpd.fs.getDevData(), state->gpd.idToIdxs.d_data.data(), _forceBuffer.d_data.data(), _activeIds.getDevData(), n);
+
+
+
     }
-
-	void FixSSAGES::SyncToEngineCPU() //put Snapshot values -> LAMMPS
-	{
-/*
-		// Obtain local const reference to snapshot variables.
-		// Const will ensure that _snapshot variables are
-		// not being changed. Only engine side variables should
-		// change. 
-        //
-        //HEY - MAKE IT CHECK TO BUILD NEIGHBORLISTS THIS TURN BECAUSE YOU ARE POTENTIALLY SCRAMBLING YOUR ATOMS
-		const auto& pos = _snapshot->GetPositions();
-		const auto& vel = _snapshot->GetVelocities();
-		const auto& frc = _snapshot->GetForces();
-
-		// Labels and ids for future work on only updating
-		// atoms that have changed.
-		const auto& ids = _snapshot->GetAtomIDs();
-		const auto& types = _snapshot->GetAtomTypes();
-        std::vector<double> masses = _snapshot->GetAtomMasses();
-
-        GPUData &gpd = state->gpd;
- * LATERRR
-        int nAtoms = state->atoms.size();
-        for (int i=0; i<atoms.size(); i++) {
-            gpd.xs.h_data[i] = make_float4(pos[i][0], pos[i][1], pos[i][2], * (float *)&types[i]);
-            gpd.vs.h_data[i] = make_float4(vel[i][0], vel[i][1], vel[i][2], 1/masses[i]);
-		}
-        gpd.xs.dataToDevice();
-        gpd.vs.dataToDevice();
-        gpd.fs.dataToDevice();
-        gpd.ids.dataToDevice();
-        state->gridGPU.periodicBoundaryConditions();
-*/
-
-		// LAMMPS computes will reset thermo data based on
-		// updated information. No need to sync thermo data
-		// from snapshot to engine.
-		// However, this will change in the future.
-	}
 }

@@ -24,10 +24,6 @@
 #include <boost/mpi.hpp>
 #include "json/json.h"
 #include "JSON/Serializable.h"
-#define DANMD //fix later
-#ifdef DANMD
-#include "SnapshotGPUData.h"
-#endif
 #include "types.h"
 
 namespace SSAGES
@@ -82,9 +78,6 @@ namespace SSAGES
 		bool _changed; //!< \c TRUE is Simulation state changed
 
 	public:
-#ifdef DANMD
-        SnapshotGPUData _gpd;
-#endif      
 		//! Constructor
 		/*!
 		 * \param comm MPI communicator

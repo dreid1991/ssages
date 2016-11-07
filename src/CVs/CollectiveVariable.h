@@ -159,6 +159,13 @@ namespace SSAGES
 			return _val - location;
 		}
 
+        //! Returns the ids used in this collective variable
+        /*!
+         * \return std::vector of all atom ids involved in this collective variable
+         */
+        virtual std::vector<int> getIds() {
+            return std::vector<int>(); //to do: make this purely virtual so all CVs must implement.  Currently just doing testing
+        }; 
 		//! Set up collective variable.
 		/*!
 		 * \param json JSON input value.
@@ -193,8 +200,5 @@ namespace SSAGES
 		static void BuildCV(const Json::Value& json, 
 							   CVList& cvlist,
 							   const std::string& path);
-        virtual void takeValPtr(float *){}; //for gpu cvs
-        virtual float4 *GetGradient_gpu(){return nullptr;}
-        virtual float *GetValue_gpu(){return nullptr;}        
 	};
 }

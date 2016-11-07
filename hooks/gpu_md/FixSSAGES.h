@@ -2,6 +2,7 @@
 #include "Fix.h"
 #include "Hook.h"
 #include <string>
+#include "GPUArrayGlobal.h"
 namespace SSAGES {
 	// SSAGES Hook class for LAMMPS implemented as 
 	// a LAMMPS fix. This is activated by adding 
@@ -14,10 +15,6 @@ namespace SSAGES {
 
 		void SyncToSnapshot();
 
-		void SyncToEngineCPU();
-
-		void SyncToSnapshotCPU();
-
 
 	public:
 		FixSSAGES(SHARED(State) state, std::string handle);
@@ -28,6 +25,9 @@ namespace SSAGES {
 		// Post force where the synchronization occurs.
   		void compute(bool);
         bool postRun();
+        GPUArrayGlobal<uint> _activeIds;
+        GPUArrayGlobal<char> _dataBuffer;
+        GPUArrayGlobal<float4> _forceBuffer;
 
   		// Post-run for post-simulation call.
 	};

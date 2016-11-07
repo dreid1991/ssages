@@ -29,7 +29,6 @@
 #include "ParticleCoordinateCV.h"
 #ifdef DANMD
 
-#include "ParticleCoordinateCV_gpu.h"
 
 #endif
 #include "ParticlePositionCV.h"
@@ -90,12 +89,7 @@ namespace SSAGES
 				index = Dimension::z;
 			else
 				throw BuildException({"Could not obtain ParticleCoordinate dimension specified."});
-#ifdef DANMD
-            //SURE WOULD BE NICE IF I COULD TELL WHICH ENGINE I'M RUNNING
-            auto *c = new ParticleCoordinateCV_gpu(atomids, index);
-#else
 			auto* c = new ParticleCoordinateCV(atomids, index);
-#endif
 			cv = static_cast<CollectiveVariable*>(c);
 		}
 		else if(type == "ParticlePosition")

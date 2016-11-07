@@ -106,6 +106,7 @@ namespace SSAGES
 			
 			// Compute total and center of mass.
 			auto masstot = snapshot.TotalMass(idx);
+            printf("MASS TOTAL %f\n", masstot);
 			Vector3 com = snapshot.CenterOfMass(idx, masstot);
 
 			// Assign CV value. 
@@ -121,6 +122,7 @@ namespace SSAGES
 					_val = com[2];
 					break;
 			}
+            printf("VAL %f\n", _val);
 
 			// Assign gradient to appropriate atoms.
 			for(auto& id : idx)
@@ -160,6 +162,9 @@ namespace SSAGES
 			return _val - Location;
 		}
 
+        std::vector<int> getIds() {
+            return _atomids;
+        }
 		//! Serialize this CV for restart purposes.
 		/*!
 		 * \param json JSON value

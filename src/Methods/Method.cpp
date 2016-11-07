@@ -32,9 +32,6 @@
 #include "StringMethod.h"
 #include "Meta.h"
 #include "Umbrella.h"
-#ifdef DANMD
-#include "Umbrella_gpu.h"
-#endif
 #include "ForwardFlux.h"
 #include "GridTest.h"
 #include "ABF.h"
@@ -88,11 +85,7 @@ namespace SSAGES
 			auto freq = json.get("frequency", 1).asInt();
 
 			auto name = json.get("file name","none").asString();
-#ifdef DANMD
-			auto* m = new Umbrella_gpu(world, comm, ksprings, centers,name, freq);
-#else
 			auto* m = new Umbrella(world, comm, ksprings, centers, name, freq);
-#endif
 			if(json.isMember("iteration"))
 				m->SetIteration(json.get("iteration",0).asInt());
 
